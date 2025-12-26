@@ -1,0 +1,7 @@
+package com.binarydevs.configs.jwtConfig;
+
+import org.springframework.security.core.userdetails.UserDetailsService;
+
+public class CustomerUserDetailsService implements UserDetailsService{
+
+}

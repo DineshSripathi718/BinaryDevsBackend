@@ -1,0 +1,23 @@
+package com.binarydevs.Entities;
+
+import java.util.Date;
+
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.binarydevs.Entities.enums.UserRole;
+
+@Document(collection = "Admins")
+public class AdminUser {
+	private String _id;
+	private String fullName;
+	private String email;
+	private String password;
+	private Date createdAt;
+	private String photoUrl;
+	private String role = UserRole.ROLE_ADMIN.getDisplayName();
+	
+	private String refreshToken = null;
+	
+	
+	
+}

@@ -1,0 +1,25 @@
+package com.binarydevs.services;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import com.binarydevs.DAOs.ContactsDAO;
+import com.binarydevs.Entities.Contacts;
+
+
+
+@Service
+public class BinaryDevsService {
+	@Autowired
+	private ContactsDAO contactDao;
+	
+	public ResponseEntity addContact(Contacts contact) {
+		System.out.println(contact);
+		try {
+			Contacts savedData = 
+			return ResponseEntity.ok(contact);
+		}
+	}
+
+}

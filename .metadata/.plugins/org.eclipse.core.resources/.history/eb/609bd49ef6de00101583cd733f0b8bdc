@@ -1,0 +1,5 @@
+package com.binarydevs.DAOs;
+
+public interface ContactsDAO {
+
+}

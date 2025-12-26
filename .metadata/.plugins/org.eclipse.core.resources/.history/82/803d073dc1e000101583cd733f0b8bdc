@@ -1,0 +1,96 @@
+package com.binarydevs.configs.jwtConfig;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
+import javax.crypto.SecretKey;
+
+import org.slf4j.Logger;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+
+@Service
+public class JwtService {
+	
+	Logger log = org.slf4j.LoggerFactory.getLogger(getClass());
+
+    // Ensure this is at least 256 bits (32 characters)
+    private static final String SECRET_KEY = "your-256-bit-secret-your-256-bit-secret";
+    
+    private Map<String, Object> claimsMap = new HashMap<>();
+    
+    private Date EXPIRATION_TIME = new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 15));
+    
+    private static final long REFRESH_EXPIRY = 365 * 24 * 60 * 60 * 1000; // 7 days
+    
+    private SecretKey getSigningKey() {
+        // Use the Keys helper to create a SecretKey object
+        return Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+    }
+    
+//    Refresh Token Generation
+    public String generateRefreshToken(UserDetails user) {
+        return Jwts.builder()
+                .subject(user.getUsername())
+                .claim("type", "refresh")
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRY))
+                .signWith(getSigningKey())
+                .compact();
+    }
+    
+//    access token generation
+    public String generateJwtToken(String username) {
+    	log.info("{} is the username we got",username);
+    	return Jwts.builder()
+    			.claims(claimsMap)
+    			.claim("type", "access")
+    			.subject(username)
+    			.issuedAt(new Date(System.currentTimeMillis()))
+    			.expiration(EXPIRATION_TIME)
+    			.signWith(getSigningKey())
+    			.compact();
+    }
+    
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+    
+    public Claims extractClaim(String token) {
+        final Claims claims = extractAllClaims(token);
+        return claims;
+    }
+    
+    public boolean isRefreshToken(String token) {
+        return "refresh".equals(extractClaim(token).get("type"));
+    }
+
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+    }
+
+    private boolean isTokenExpired(String token) {
+        return extractClaim(token, Claims::getExpiration).before(new Date());
+    }
+
+    private Claims extractAllClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(getSigningKey()) // Use verifyWith instead of setSigningKey
+                .build()                     // Build the immutable parser
+                .parseSignedClaims(token)    // Use parseSignedClaims for JWS
+                .getPayload();               // getBody() is now getPayload()
+    }
+}

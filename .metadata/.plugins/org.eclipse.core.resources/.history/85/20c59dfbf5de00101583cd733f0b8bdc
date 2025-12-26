@@ -1,0 +1,15 @@
+package com.binarydevs.services;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import com.binarydevs.DTOs.Contacts;
+
+@Service
+public class BinaryDevsService {
+	public ResponseEntity addContact(Contacts contact) {
+		System.out.println(contact);
+		return null;
+	}
+
+}

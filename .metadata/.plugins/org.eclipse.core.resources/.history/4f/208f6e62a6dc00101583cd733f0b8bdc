@@ -1,0 +1,5 @@
+package com.binarydevs.configs.jwtConfig;
+
+public class JwtService {
+
+}

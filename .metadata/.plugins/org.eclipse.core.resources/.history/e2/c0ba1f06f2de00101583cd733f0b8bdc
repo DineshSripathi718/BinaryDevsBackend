@@ -1,0 +1,19 @@
+package com.binarydevs.controllers;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class BinaryDevsController {
+	
+	@Autowired
+	private BinaryDevsService service;
+	
+	@PostMapping("/contact-us")
+	public ResponseEntity<T> contactUs(@RequestBody ContactFormDTO contact){
+		return
+	}
+}

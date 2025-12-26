@@ -1,0 +1,5 @@
+package com.binarydevs.DTOs;
+
+public class RefreshDTO {
+
+}

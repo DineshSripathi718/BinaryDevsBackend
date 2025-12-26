@@ -1,0 +1,10 @@
+package com.binarydevs.Entities.enums;
+
+public enum UserRole {
+	ADMIN("Admin")
+	
+	public String UserRole(String role) {
+		return role;
+	}
+	
+}

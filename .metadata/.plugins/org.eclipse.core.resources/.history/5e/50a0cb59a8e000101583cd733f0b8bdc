@@ -1,0 +1,56 @@
+package com.binarydevs.services;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.binarydevs.DAO.AdminRepository;
+import com.binarydevs.DTOs.AdminUserLogin;
+import com.binarydevs.Entities.AdminUser;
+import com.binarydevs.configs.jwtConfig.JwtService;
+
+@Service
+public class BinaryDevsAdminService {
+
+	@Autowired
+	private AdminRepository adminRepo; 
+	
+	@Autowired
+	private PasswordEncoder encoder;
+	
+	@Autowired
+	private AuthenticationProvider authProvider;
+	
+	@Autowired
+	private JwtService jwtService;
+	
+	private Logger log = LoggerFactory.getLogger(getClass());
+	
+	public ResponseEntity registerUser(AdminUser userDetails) {
+		userDetails.setPassword(encoder.encode(userDetails.getPassword()));
+		System.out.println(userDetails);
+		try {
+			AdminUser savedAdminUser = adminRepo.save(userDetails);
+			return ResponseEntity.ok(savedAdminUser);
+		}catch(Exception error) {
+			return ResponseEntity.internalServerError().body("Internal server issue "+error);
+		}
+	}
+
+	public ResponseEntity login(AdminUserLogin userLogin) {
+		Authentication authentication = authProvider.authenticate(new UsernamePasswordAuthenticationToken(userLogin.getEmail(), userLogin.getPassword()));
+		UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+		
+		String token = jwtService.generateJwtToken(userDetails.getUsername());
+		log.info("Token generated Successfully : {}", token);
+		return null;
+	}
+
+}

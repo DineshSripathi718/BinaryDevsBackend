@@ -1,0 +1,11 @@
+package com.binarydevs.DAO;
+
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
+
+import com.binarydevs.Entities.Contacts;
+
+@Repository
+public interface ContactRepository extends MongoRepository<Contacts, String>{
+
+}

@@ -1,0 +1,5 @@
+package com.binarydevs.DAO;
+
+public interface AdminRepository {
+
+}
