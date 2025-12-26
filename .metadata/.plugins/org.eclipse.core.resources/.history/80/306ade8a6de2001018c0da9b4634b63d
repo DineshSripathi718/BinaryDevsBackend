@@ -1,0 +1,148 @@
+package com.binarydevs.services;
+
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.binarydevs.DAO.AdminRepository;
+import com.binarydevs.DAO.ContactRepository;
+import com.binarydevs.DTOs.AdminUserLogin;
+import com.binarydevs.Entities.AdminUser;
+import com.binarydevs.Entities.Contacts;
+import com.binarydevs.configs.jwtConfig.CustomerUserDetailsService;
+import com.binarydevs.configs.jwtConfig.JwtService;
+
+@Service
+public class BinaryDevsAdminService {
+
+	@Autowired
+    private final AdminRepository adminRepo = null;
+	@Autowired
+    private final PasswordEncoder encoder = null;
+	@Autowired
+    private final AuthenticationProvider authProvider = null;
+	@Autowired
+    private final JwtService jwtService = null;
+	@Autowired
+    private final CustomerUserDetailsService userDetailsService = null;
+    @Autowired
+    private final ContactRepository contactRepo = null;
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
+
+
+    /* ================= REGISTER ================= */
+
+    public ResponseEntity<?> registerUser(AdminUser userDetails) {
+        userDetails.setPassword(encoder.encode(userDetails.getPassword()));
+        return ResponseEntity.ok(adminRepo.save(userDetails));
+    }
+
+    /* ================= LOGIN ================= */
+
+    public ResponseEntity<?> login(AdminUserLogin userLogin) {
+
+        Authentication authentication = authProvider.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        userLogin.getEmail(),
+                        userLogin.getPassword()
+                )
+        );
+
+        UserDetails userDetails =
+                (UserDetails) authentication.getPrincipal();
+
+        String accessToken =
+                jwtService.generateJwtToken(userDetails.getUsername());
+
+        String refreshToken =
+                jwtService.generateRefreshToken(userDetails);
+
+        AdminUser user =
+                adminRepo.findByEmail(userDetails.getUsername());
+
+        user.setRefreshToken(refreshToken);
+        adminRepo.save(user);
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "accessToken", accessToken,
+                        "refreshToken", refreshToken,
+                        "role", user.getRole()
+                )
+        );
+    }
+
+    /* ================= REFRESH ================= */
+
+    public ResponseEntity<?> generateAccessToken(String refreshToken) {
+
+        if (refreshToken.startsWith("Bearer ")) {
+            refreshToken = refreshToken.substring(7);
+        }
+
+        try {
+            String username = jwtService.extractUsername(refreshToken);
+
+            UserDetails userDetails =
+                    userDetailsService.loadUserByUsername(username);
+
+            AdminUser user =
+                    adminRepo.findByEmail(username);
+
+            // 🔐 CRITICAL SECURITY CHECK
+            if (!refreshToken.equals(user.getRefreshToken())) {
+                throw new RuntimeException("Refresh token mismatch");
+            }
+
+            if (!jwtService.isRefreshToken(refreshToken)
+                    || !jwtService.isTokenValid(refreshToken, userDetails)) {
+                throw new RuntimeException("Refresh token invalid or expired");
+            }
+
+            String newAccessToken =
+                    jwtService.generateJwtToken(username);
+
+            return ResponseEntity.ok(
+                    Map.of("accessToken", newAccessToken)
+            );
+
+        } catch (Exception error) {
+            log.error("Refresh token error", error);
+            return ResponseEntity.status(401)
+                    .body(Map.of("error", error.getMessage()));
+        }
+    }
+
+	public ResponseEntity logout(String email, String refreshToken) {
+		try {
+			AdminUser user = adminRepo.findByEmailAndRefreshToken(email, refreshToken);
+			log.info("user : {}",user);
+			user.setRefreshToken(null);
+			adminRepo.save(user);
+			user = adminRepo.findByEmail(email);
+			log.info("user : {}",user);
+			return ResponseEntity.ok(Map.of("message", "Logged Out"));
+		}catch(Exception e) {
+			return ResponseEntity.internalServerError().body(Map.of("message","Internal Error. Please try again"));
+		}
+	}
+
+	public ResponseEntity leads() {
+		List<Contacts> leads = 
+		return null;
+	}
+	
+	
+}

@@ -10,4 +10,6 @@ public interface AdminRepository extends MongoRepository<AdminUser, String>{
 
 	public AdminUser findByEmail(String username);
 
+	public AdminUser findByEmailAndRefreshToken(String email, String refreshToken);
+
 }

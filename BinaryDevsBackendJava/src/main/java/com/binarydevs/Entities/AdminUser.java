@@ -14,7 +14,7 @@ public class AdminUser {
 	private String password;
 	private Date createdAt;
 	private String photoUrl;
-	private String role = UserRole.ROLE_ADMIN.getDisplayName();
+	private UserRole role = UserRole.ROLE_ADMIN;
 	private String refreshToken = null;
 
 	public String get_id() {
@@ -65,11 +65,11 @@ public class AdminUser {
 		this.photoUrl = photoUrl;
 	}
 
-	public String getRole() {
+	public UserRole getRole() {
 		return role;
 	}
 
-	public void setRole(String role) {
+	public void setRole(UserRole role) {
 		this.role = role;
 	}
 

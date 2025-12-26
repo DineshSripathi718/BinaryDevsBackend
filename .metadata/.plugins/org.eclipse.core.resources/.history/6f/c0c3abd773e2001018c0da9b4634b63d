@@ -1,0 +1,73 @@
+package com.binarydevs.controllers;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.binarydevs.DTOs.AdminUserLogin;
+import com.binarydevs.DTOs.LogoutDto;
+import com.binarydevs.DTOs.RefreshDTO;
+import com.binarydevs.Entities.AdminUser;
+import com.binarydevs.services.BinaryDevsAdminService;
+
+@RestController
+@RequestMapping("/api/admin")
+public class BinaryDevsAdminController {
+	
+	Logger log = LoggerFactory.getLogger(getClass());
+	
+	@Autowired
+	private BinaryDevsAdminService adminService;
+	
+	@PostMapping("/register")
+	public ResponseEntity register(@RequestBody AdminUser userDetails) {
+		System.out.println(userDetails);
+		log.info("user Details : {}", userDetails);
+		return adminService.registerUser(userDetails);
+	}
+	
+	@PostMapping("/login")
+	public ResponseEntity login(@RequestBody AdminUserLogin userLogin) {
+		System.out.println(userLogin);
+		log.info("user Details Login: {}", userLogin);
+		return adminService.login(userLogin);
+	}
+	
+	@PostMapping("/refresh")
+	public ResponseEntity generateAccessToken(@RequestBody RefreshDTO refreshToken) {
+		return adminService.generateAccessToken(refreshToken.getRefreshToken());
+	}
+	
+	@PostMapping("/logout")
+	public ResponseEntity logout(@RequestBody LogoutDto logoutDto) {
+		return adminService.logout(logoutDto.getEmail(), logoutDto.getRefreshToken());
+	}
+	
+	@GetMapping("/leads")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity getAllLeads() {
+		
+		    // Option 1: Using method injection
+		    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		    log.info("Authenticated user: {}", auth.getName());
+
+		    // Log authorities/roles
+		    for (GrantedAuthority authority : auth.getAuthorities()) {
+		        log.info("Authority: {}", authority.getAuthority());
+		    }
+
+		    return adminService.leads();
+		}
+
+	}
+}

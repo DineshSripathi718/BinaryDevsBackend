@@ -1,9 +1,11 @@
 package com.binarydevs.services;
 
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,35 +15,32 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.binarydevs.DAO.AdminRepository;
+import com.binarydevs.DAO.ContactRepository;
 import com.binarydevs.DTOs.AdminUserLogin;
 import com.binarydevs.Entities.AdminUser;
+import com.binarydevs.Entities.Contacts;
 import com.binarydevs.configs.jwtConfig.CustomerUserDetailsService;
 import com.binarydevs.configs.jwtConfig.JwtService;
 
 @Service
 public class BinaryDevsAdminService {
 
-    private final AdminRepository adminRepo;
-    private final PasswordEncoder encoder;
-    private final AuthenticationProvider authProvider;
-    private final JwtService jwtService;
-    private final CustomerUserDetailsService userDetailsService;
+	@Autowired
+    private final AdminRepository adminRepo = null;
+	@Autowired
+    private final PasswordEncoder encoder = null;
+	@Autowired
+    private final AuthenticationProvider authProvider = null;
+	@Autowired
+    private final JwtService jwtService = null;
+	@Autowired
+    private final CustomerUserDetailsService userDetailsService = null;
+    @Autowired
+    private final ContactRepository contactRepo = null;
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    public BinaryDevsAdminService(
-            AdminRepository adminRepo,
-            PasswordEncoder encoder,
-            AuthenticationProvider authProvider,
-            JwtService jwtService,
-            CustomerUserDetailsService userDetailsService
-    ) {
-        this.adminRepo = adminRepo;
-        this.encoder = encoder;
-        this.authProvider = authProvider;
-        this.jwtService = jwtService;
-        this.userDetailsService = userDetailsService;
-    }
+
 
     /* ================= REGISTER ================= */
 
@@ -125,4 +124,27 @@ public class BinaryDevsAdminService {
                     .body(Map.of("error", error.getMessage()));
         }
     }
+
+	public ResponseEntity logout(String email, String refreshToken) {
+		try {
+			AdminUser user = adminRepo.findByEmailAndRefreshToken(email, refreshToken);
+			log.info("user : {}",user);
+			user.setRefreshToken(null);
+			adminRepo.save(user);
+			user = adminRepo.findByEmail(email);
+			log.info("user : {}",user);
+			return ResponseEntity.ok(Map.of("message", "Logged Out"));
+		}catch(Exception e) {
+			return ResponseEntity.internalServerError().body(Map.of("message","Internal Error. Please try again"));
+		}
+	}
+
+	public ResponseEntity leads() {
+		log.info("inside the leads service");
+		List<Contacts> leads = contactRepo.findAll();
+		log.info("contacts : {}", leads);
+		return ResponseEntity.ok(leads);
+	}
+	
+	
 }

@@ -44,7 +44,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-webmvc</artifactId>
+			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
 		<dependency>
@@ -84,6 +84,11 @@
 			    <artifactId>jjwt-impl</artifactId>
 			    <version>0.13.0</version>
 			    <scope>runtime</scope>
+			</dependency>
+			<!-- WebSocket -->
+			<dependency>
+			  <groupId>org.springframework.boot</groupId>
+			  <artifactId>spring-boot-starter-websocket</artifactId>
 			</dependency>
 			<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-jackson -->
 			<dependency>

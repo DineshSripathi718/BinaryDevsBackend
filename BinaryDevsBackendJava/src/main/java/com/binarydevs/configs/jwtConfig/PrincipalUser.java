@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,6 +13,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.binarydevs.Entities.AdminUser;
 
 public class PrincipalUser implements UserDetails {
+	
+	Logger log = LoggerFactory.getLogger(getClass());
 	
 	private AdminUser user = null;
 	
@@ -21,8 +25,9 @@ public class PrincipalUser implements UserDetails {
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		// TODO Auto-generated method stub
+		log.info("Authority Role : {}", user.getRole());
 		return List.of(
-	            new SimpleGrantedAuthority(user.getRole())
+	            new SimpleGrantedAuthority(user.getRole().name())
 		        );
 	}
 

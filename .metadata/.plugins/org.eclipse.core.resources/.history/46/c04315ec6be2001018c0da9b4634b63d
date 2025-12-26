@@ -1,0 +1,5 @@
+package com.binarydevs.configs;
+
+public class WebsocketConfig {
+
+}
